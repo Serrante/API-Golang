@@ -1,5 +1,8 @@
 create database blockcoin;
 create user blockcoin with encrypted password 'bl0ckc01n';
+-- ALTER TABLE public.transactions OWNER TO blockcoin;
+-- ALTER TABLE public.wallets OWNER TO blockcoin;
+-- ALTER TABLE public.users OWNER TO blockcoin;
 
 -- grant all privileges on database blockcoin to blockcoin ;
 -- grant all privileges on table users to blockcoin ;

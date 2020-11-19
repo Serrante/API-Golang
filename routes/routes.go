@@ -20,5 +20,7 @@ func NewRouter() *mux.Router {
 	r.HandleFunc("/wallets/{public_key}", controllers.GetWallet).Methods("GET")
 	r.HandleFunc("/wallets/{public_key}", controllers.PutWallet).Methods("PUT")
 
+	r.HandleFunc("/transactions/{public_key}", controllers.PostTransaction).Methods("POST")
+
 	return r
 }
