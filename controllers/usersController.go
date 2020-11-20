@@ -31,6 +31,7 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	user.Password = ""
 	utils.ToJson(w, user)
 }
 

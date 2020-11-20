@@ -1,6 +1,7 @@
 package models
 
 import (
+	"api/config"
 	"database/sql"
 	"fmt"
 	"log"
@@ -8,15 +9,14 @@ import (
 	_ "github.com/lib/pq"
 )
 
-const (
-	USER    = "blockcoin"
-	PASS    = "bl0ckc01n"
-	DBNAME  = "blockcoin"
-	SSLMODE = "disable"
-)
+var configs = config.LoadConfigs()
 
 func Connect() *sql.DB {
-	URL := fmt.Sprintf("user=%s password=%s dbname=%s sslmode=%s", USER, PASS, DBNAME, SSLMODE)
+	URL := fmt.Sprintf("user=%s password=%s dbname=%s sslmode=%s",
+		configs.Database.User,
+		configs.Database.Pass,
+		configs.Database.Name,
+		"disable")
 	db, err := sql.Open("postgres", URL)
 
 	if err != nil {

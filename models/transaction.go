@@ -77,14 +77,67 @@ func NewTransaction(transaction Transaction) (bool, error) {
 			return false, err
 		}
 
-		_, err = stmt.Exec(transaction.Origin.PublicKey, transaction.Target.PublicKey, transaction.Cash, transaction.Message)
+		_, err = stmt.Exec(
+			transaction.Origin.PublicKey,
+			transaction.Target.PublicKey,
+			transaction.Cash,
+			transaction.Message)
 
 		if err != nil {
-			//err = fmt.Errorf("%v", sql)
 			tx.Rollback()
 			return false, err
 		}
 	}
 
 	return true, tx.Commit()
+}
+
+func GetTransactions() ([]Transaction, error) {
+	con := Connect()
+	defer con.Close()
+
+	sql := `SELECT  *
+					FROM    TRANSACTIONS`
+	rs, err := con.Query(sql)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rs.Close()
+	var transactions []Transaction
+
+	for rs.Next() {
+		var transaction Transaction
+		err := rs.Scan(
+			&transaction.UID,
+			&transaction.Origin.PublicKey,
+			&transaction.Target.PublicKey,
+			&transaction.Cash,
+			&transaction.Message,
+			&transaction.CreatedAt,
+			&transaction.UpdatedAt)
+
+		if err != nil {
+			return nil, err
+		}
+
+		origin, err := GetWalletByPublicKey(transaction.Origin.PublicKey)
+
+		if err != nil {
+			return nil, err
+		}
+
+		target, err := GetWalletByPublicKey(transaction.Target.PublicKey)
+
+		if err != nil {
+			return nil, err
+		}
+
+		transaction.Origin = origin
+		transaction.Target = target
+		transactions = append(transactions, transaction)
+	}
+
+	return transactions, nil
 }

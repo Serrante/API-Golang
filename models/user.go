@@ -92,6 +92,7 @@ func GetUsers() ([]User, error) {
 	sql := `SELECT	id,
 									nickname,
 									email,
+									password,
 									status,
 									created_at,
 									updated_at
@@ -112,6 +113,7 @@ func GetUsers() ([]User, error) {
 			&user.UID,
 			&user.Nickname,
 			&user.Email,
+			&user.Password,
 			&user.Status,
 			&user.CreatedAt,
 			&user.UpdatedAt)
@@ -120,6 +122,7 @@ func GetUsers() ([]User, error) {
 			return nil, err
 		}
 
+		user.Password = ""
 		users = append(users, user)
 	}
 
@@ -133,6 +136,7 @@ func GetUser(id string) (User, error) {
 	sql := `SELECT	id,
 									nickname,
 									email,
+									password,
 									status,
 									created_at,
 									updated_at
@@ -153,6 +157,52 @@ func GetUser(id string) (User, error) {
 			&user.UID,
 			&user.Nickname,
 			&user.Email,
+			&user.Password,
+			&user.Status,
+			&user.CreatedAt,
+			&user.UpdatedAt)
+
+		if err != nil {
+			return User{}, err
+		}
+	}
+
+	if user.UID == "" || len(user.UID) == 0 {
+		return User{}, ErrUserNotFound
+	}
+
+	return user, nil
+}
+
+func GetUserByEmail(email string) (User, error) {
+	con := Connect()
+	defer con.Close()
+
+	sql := `SELECT	id,
+									nickname,
+									email,
+									password,
+									status,
+									created_at,
+									updated_at
+					FROM 		USERS
+					WHERE   email = $1`
+	rs, err := con.Query(sql, email)
+
+	if err != nil {
+		return User{}, err
+	}
+
+	defer rs.Close()
+
+	var user User
+
+	for rs.Next() {
+		err := rs.Scan(
+			&user.UID,
+			&user.Nickname,
+			&user.Email,
+			&user.Password,
 			&user.Status,
 			&user.CreatedAt,
 			&user.UpdatedAt)
